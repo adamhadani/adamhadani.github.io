@@ -1,0 +1,12 @@
+# Main navigation links
+main:
+  - title: "Blog"
+    url: /
+  - title: "Projects"
+    url: /projects/
+  - title: "Music"
+    url: /music/
+  - title: "About"
+    url: /about/
+  - title: "Contact"
+    url: /contact/

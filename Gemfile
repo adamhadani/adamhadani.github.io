@@ -8,6 +8,14 @@ source "https://rubygems.org"
 # This will help ensure the proper Jekyll version is running.
 # Happy Jekylling!
 #gem "jekyll", "~> 4.4.1"
+
+# Fix for Ruby 3.4.7 + OpenSSL 3.6 CRL verification issue
+# https://github.com/ruby/openssl/issues/949
+gem "openssl", ">= 3.3.1"
+
+# Faraday retry middleware for Faraday v2.0+
+gem "faraday-retry"
+
 # This is the default theme for new Jekyll sites. You may change this to anything you like.
 gem "minima", "~> 2.5"
 # If you want to use GitHub Pages, remove the "gem "jekyll"" above and
@@ -16,6 +24,10 @@ gem "github-pages", "~> 232", group: :jekyll_plugins
 # If you have any plugins, put them here!
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
+  gem "jekyll-include-cache"
+  gem "jekyll-paginate"
+  gem "jekyll-sitemap"
+  gem "jekyll-gist"
 end
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
