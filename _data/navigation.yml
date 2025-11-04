@@ -1,7 +1,7 @@
 # Main navigation links
 main:
   - title: "Blog"
-    url: /blog/
+    url: /
   - title: "Music"
     url: /music/
   - title: "About"
