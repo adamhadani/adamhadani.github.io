@@ -42,7 +42,7 @@ paginate_path: /page:num/
 # Site Author
 author:
   name: # "Adam Ever-Hadani"
-  avatar: # Add your avatar image path if you have one
+  avatar: "/assets/images/avatar.png"
   bio: "Technology architect, executive, and founder. Writing about AI/ML, software engineering, mathematics, music, and more."
   location:
   links:
