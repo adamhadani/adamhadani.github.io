@@ -7,7 +7,7 @@ author_profile: true
 
 ## About Me
 
-I'm a technology professional with a passion for exploring the intersection of artificial intelligence, software engineering, and mathematics. Currently at Globality, Inc., I work at the forefront of AI/ML applications, focusing on how emerging technologies can solve real-world problems across industries.
+I'm a technology professional with a passion for exploring the intersection of artificial intelligence, software engineering, and mathematics. Currently at [Globality, Inc.](https://www.globality.com/), I work at the forefront of AI/ML applications, focusing on how emerging technologies can solve real-world problems across industries.
 
 My interests span from the practical—building robust software systems and exploring architectural patterns—to the theoretical: diving into machine learning algorithms, deep learning architectures, and the mathematical foundations that power modern AI. I'm particularly fascinated by agentic AI systems, automation, and the potential of AI to transform how we work and create.
 
