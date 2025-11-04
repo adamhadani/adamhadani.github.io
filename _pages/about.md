@@ -17,4 +17,4 @@ This blog is my space to share insights, experiments, and thoughts on these topi
 
 ### Get in Touch
 
-I'm always interested in connecting with fellow technologists, researchers, and curious minds. Feel free to reach out via [email](mailto:adamhadani@gmail.com) or connect with me on [GitHub](https://github.com/adamhadani), [Twitter](https://twitter.com/adamhadani), or [LinkedIn](https://www.linkedin.com/in/adamhadani).
+I'm always interested in connecting with fellow technologists, researchers, and curious minds. Feel free to connect with me on [GitHub](https://github.com/adamhadani), [Twitter](https://twitter.com/adamhadani), or [LinkedIn](https://www.linkedin.com/in/adamhadani).

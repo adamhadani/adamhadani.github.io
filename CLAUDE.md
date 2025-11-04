@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # adamhadani.github.io - Codebase Architecture Guide
 
 ## Project Overview
@@ -18,19 +22,20 @@ adamhadani.github.io/
 ├── _data/                      # Data files (YAML)
 │   └── navigation.yml          # Main navigation menu configuration
 ├── _pages/                     # Static pages (not date-based)
-│   ├── about.md               # About page
-│   ├── blog.md                # Blog listing page
+│   ├── about.md               # About page with bio and accomplishments
 │   ├── contact.md             # Contact page
 │   └── music.md               # Music projects page (placeholder)
 ├── _posts/                     # Blog posts (date-based content)
 │   └── 2025-03-13-welcome-to-jekyll.markdown
 ├── _site/                      # Generated static site (build output)
 ├── 404.html                    # Custom 404 error page
-├── index.markdown              # Homepage with splash layout
+├── index.html                  # Homepage - blog landing page (layout: home)
+├── index.markdown.bak          # Backup of old splash page
 ├── Gemfile                     # Ruby dependencies specification
 ├── Gemfile.lock                # Locked dependency versions
 ├── .ruby-version               # Ruby version specification (3.4.7)
 ├── .gitignore                  # Git ignore rules
+├── CLAUDE.md                   # This file - architecture guide
 └── .git/                       # Git repository metadata
 ```
 
@@ -52,7 +57,6 @@ adamhadani.github.io/
 #### Site Identity
 ```yaml
 title: Adam Ever-Hadani
-email: adamhadani@gmail.com
 description: Personal blog about code, AI/ML, math, and esoteric topics
 baseurl: ""                              # No subdirectory
 url: "https://adamhadani.github.io"      # Full domain
@@ -67,7 +71,7 @@ github_username: adamhadani
 #### Theme Configuration
 ```yaml
 remote_theme: "mmistakes/minimal-mistakes@4.26.2"  # Remote theme (loaded from GitHub)
-minimal_mistakes_skin: "dark"                        # Dark theme variant
+minimal_mistakes_skin: "sunrise"                     # Sunrise theme variant (warm oranges/reds)
 ```
 
 #### Plugin Configuration
@@ -78,6 +82,10 @@ plugins:
   - jekyll-paginate          # Pagination support for blog
   - jekyll-sitemap           # Auto-generate XML sitemap
   - jekyll-gist              # Embed GitHub gists
+
+# Additional gems
+gem "faraday-retry"          # Faraday v2.0+ retry middleware
+gem "openssl", ">= 3.3.1"    # Ruby 3.4.7 + OpenSSL 3.6 compatibility
 ```
 
 #### Pagination
@@ -89,9 +97,8 @@ paginate_path: /page:num/   # Pagination URL structure
 #### Author & Footer Configuration
 ```yaml
 author:
-  name: "Adam Ever-Hadani"
-  bio: "Code, AI/ML, Math, and other esoteric topics"
-  email: "adamhadani@gmail.com"
+  name: # "Adam Ever-Hadani" - Commented out to avoid redundancy (shows in page titles)
+  bio: "Technology architect, executive, and founder. Writing about AI/ML, software engineering, mathematics, music, and more."
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
@@ -99,6 +106,9 @@ author:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
       url: "https://twitter.com/adamhadani"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/adamhadani"
 
 footer:
   links:
@@ -108,6 +118,9 @@ footer:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
       url: "https://twitter.com/adamhadani"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/adamhadani"
 ```
 
 #### Front Matter Defaults
@@ -141,7 +154,7 @@ defaults:
 ```yaml
 main:
   - title: "Blog"
-    url: /blog/
+    url: /                    # Blog is the landing page
   - title: "Music"
     url: /music/
   - title: "About"
@@ -192,22 +205,20 @@ author_profile: true
 
 **Pages**:
 
-1. **about.md** - Personal biography
-   - Describes Adam's interests: Code, AI/ML, Mathematics, Esoteric Topics
-   - Links to GitHub and Twitter profiles
+1. **about.md** - Professional biography
+   - Professional background at Globality, Inc.
+   - Technical focus: AI/ML, software engineering, mathematics
+   - Musical accomplishments: scholarships, worldwide performances
+   - Notable work: Google Doodles contribution, patent holder
+   - Links to GitHub, Twitter, LinkedIn, and email
    - `permalink: /about/`
 
-2. **blog.md** - Blog listing page
-   - Uses `layout: home` (Minimal Mistakes blog listing layout)
-   - `permalink: /blog/`
-   - Shows paginated list of blog posts with 5 posts per page
-
-3. **contact.md** - Contact information
-   - Email, GitHub, Twitter links
+2. **contact.md** - Contact information
+   - Email, GitHub, Twitter, LinkedIn links
    - Responsive message about response time
    - `permalink: /contact/`
 
-4. **music.md** - Placeholder for music projects
+3. **music.md** - Placeholder for music projects
    - Currently showing "Coming soon..."
    - Ready for future expansion with musical compositions
    - `permalink: /music/`
@@ -224,7 +235,7 @@ Date-stamped blog articles following Jekyll naming convention.
 **Post Front Matter**:
 ```yaml
 ---
-layout: post
+layout: single              # Use 'single' layout (not 'post')
 title: "Post Title"
 date: 2025-03-13 22:54:25 -0500
 categories: jekyll update
@@ -232,7 +243,7 @@ categories: jekyll update
 ```
 
 **Default Configuration Applied** (via `_config.yml` defaults):
-- `layout: post`
+- `layout: single`
 - `author_profile: true`
 - `read_time: true`
 - `share: true`
@@ -259,7 +270,7 @@ The Minimal Mistakes remote theme handles all CSS, JavaScript, and image assets.
 
 **Type**: Remote theme (loaded from GitHub)
 **Configuration**: `remote_theme: "mmistakes/minimal-mistakes@4.26.2"` in `_config.yml`
-**Skin**: Dark theme
+**Skin**: Sunrise theme (warm oranges and reds)
 
 **Why Remote Theme**:
 - No theme files in repository (cleaner codebase)
@@ -269,20 +280,17 @@ The Minimal Mistakes remote theme handles all CSS, JavaScript, and image assets.
 
 ### 4.2 Layout Types Used
 
-1. **splash** - Homepage with overlay image and feature cards
-   - Used in `index.markdown`
-   - Includes header actions and feature row sections
-
-2. **home** - Blog listing page with pagination
-   - Used in `_pages/blog.md`
+1. **home** - Blog listing page with pagination
+   - Used in `index.html` (landing page)
    - Automatically lists posts, handles pagination
 
-3. **single** - Single column layout with optional author profile
+2. **single** - Single column layout with optional author profile
    - Used for all regular pages and posts
    - `author_profile: true` displays author info in sidebar
    - Default for posts and pages (set in defaults)
 
-4. **page** - Basic page layout (used for 404.html)
+3. **default** - Basic page layout
+   - Used for 404.html error page
 
 ### 4.3 Minimal Mistakes Features Enabled
 
@@ -489,12 +497,14 @@ Via `github-pages` gem v232 (includes):
 - Can't use custom Ruby gems
 - Build process not customizable
 
-### 8.4 Minimal Content Currently
+### 8.4 Site Structure
 
 **Current State**:
+- Blog is the landing page (`index.html`)
 - 1 example blog post (Welcome to Jekyll)
-- 4 static pages (About, Blog, Contact, Music)
+- 3 static pages (About, Contact, Music)
 - Music page is a placeholder
+- Professional biography with accomplishments in About page
 
 **Future Expansion Pattern**:
 - Add blog posts in `_posts/` with date-slug naming
@@ -509,13 +519,15 @@ Via `github-pages` gem v232 (includes):
 |------|---------|------|
 | `_config.yml` | Main site configuration | CONFIG |
 | `_data/navigation.yml` | Menu structure | DATA |
-| `index.markdown` | Homepage | PAGE |
+| `index.html` | Homepage - blog landing page | PAGE |
 | `_pages/*.md` | Static pages | CONTENT |
 | `_posts/*.markdown` | Blog posts | CONTENT |
 | `404.html` | Error page | TEMPLATE |
 | `Gemfile` | Ruby dependencies | CONFIG |
 | `.ruby-version` | Ruby version | CONFIG |
 | `Gemfile.lock` | Locked dependencies | CONFIG |
+| `CLAUDE.md` | Architecture documentation | DOCS |
+| `README.md` | Human-readable setup guide | DOCS |
 
 ---
 

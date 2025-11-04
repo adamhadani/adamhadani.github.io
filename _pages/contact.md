@@ -9,15 +9,12 @@ author_profile: true
 
 I'd love to hear from you! Whether you have questions, suggestions, or just want to connect, here are the best ways to reach me:
 
-### Email
-[adamhadani@gmail.com](mailto:adamhadani@gmail.com)
-
 ### Social Media
 - **GitHub**: [@adamhadani](https://github.com/adamhadani)
 - **Twitter**: [@adamhadani](https://twitter.com/adamhadani)
+- **LinkedIn**: [adamhadani](https://www.linkedin.com/in/adamhadani)
 
-### Professional Networks
-Feel free to connect with me on professional networking platforms as well.
+Feel free to connect with me on any of these platforms!
 
 ---
 
