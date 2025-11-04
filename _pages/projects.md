@@ -3,7 +3,24 @@ layout: single
 title: "Projects"
 permalink: /projects/
 author_profile: true
+header:
+  image: /assets/images/ai-pixelart.png
+  image_description: "Pixel art AI and technology landscape"
+classes: wide
 ---
+
+<style>
+  .page__hero--overlay {
+    padding: 3em 0 !important;
+    min-height: 480px !important;
+  }
+  .page__hero-image {
+    object-fit: cover !important;
+    object-position: center 55% !important;
+    max-height: 480px !important;
+    width: 100% !important;
+  }
+</style>
 
 ## Projects
 
