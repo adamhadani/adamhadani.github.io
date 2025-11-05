@@ -1,0 +1,23 @@
+---
+layout: single
+title:  "Testing 1, 2, 3"
+date:   2025-10-04 22:54:25 -0500
+categories: misc
+---
+
+Kicking off a personal website for sharing random bits and pieces and the ocassional long-form content.
+
+Drop a note and say Hi, and stay tuned for more soon!
+
+{% highlight python %}
+def hey(name):
+  print(f"Hi, {name}")
+
+hey("Stranger")
+{% endhighlight %}
+
+Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+
+[jekyll-docs]: https://jekyllrb.com/docs/home
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-talk]: https://talk.jekyllrb.com/
