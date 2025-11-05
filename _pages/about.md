@@ -3,7 +3,24 @@ layout: single
 title: "About"
 permalink: /about/
 author_profile: true
+header:
+  image: /assets/images/about-pixelart.png
+  image_description: "About Me"
 ---
+
+<style>
+  .page__hero--overlay {
+    padding: 3em 0 !important;
+    min-height: 480px !important;
+  }
+  .page__hero-image {
+    object-fit: cover !important;
+    object-position: center 36% !important;
+    max-height: 480px !important;
+    width: 100% !important;
+  }
+</style>
+
 
 ## About Me
 
