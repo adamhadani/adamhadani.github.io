@@ -43,7 +43,7 @@ paginate_path: /page:num/
 author:
   name: # "Adam Ever-Hadani"
   avatar: "/assets/images/avatar.png"
-  bio: "Technology architect, executive, and founder. Writing about AI/ML, software engineering, mathematics, music, and more."
+  bio: "Technology architect, executive, and ocassional founder. Writing about AI/ML, software engineering, mathematics, music, and the odd bit of esoterica."
   location:
   links:
     - label: "GitHub"
