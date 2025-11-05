@@ -12,7 +12,7 @@ classes: wide
 <style>
   .page__hero--overlay {
     padding: 3em 0 !important;
-    min-height: 400px !important;
+    min-height: 480px !important;
   }
   .page__hero-image {
     object-fit: cover !important;
