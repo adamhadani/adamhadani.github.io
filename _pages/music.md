@@ -24,6 +24,4 @@ classes: wide
 
 ## My Music
 
-This is where I share my musical projects, compositions, and thoughts about music.
-
 *Coming soon...*

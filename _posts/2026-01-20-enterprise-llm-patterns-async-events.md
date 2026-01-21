@@ -67,6 +67,26 @@ User: "Actually, also update the tests"
 
 **Tradeoffs**: Simple mental model, guaranteed consistency, but latency accumulates for rapid interactions.
 
+### Allow User to Interrupt
+
+**Examples: Claude Desktop, ChatGPT, most LLM chat interfaces**
+
+A widely adopted pattern in conversational LLM applications: allow users to interrupt an in-progress generation at any time. When the user sends a new message (or clicks a "Stop" button), the current generation is immediately cancelled and the system either processes the new input or waits in an idle state.
+
+This pattern emerged naturally in consumer LLM chat applications where user intent can shift mid-response. If the model is heading in the wrong direction or the user realizes they asked the wrong question, waiting for completion wastes both time and tokens. Desktop applications like Claude and ChatGPT prominently feature a stop button that becomes active during generation, and sending a new message implicitly triggers interruption.
+
+Beyond chat interfaces, this pattern appears in AI-assisted coding tools. GitHub Copilot and similar inline completion systems cancel pending suggestions when the user continues typing—the act of typing signals that the current suggestion context is stale. The key insight: **user action is a strong signal of intent change**.
+
+```
+t=0    User sends message A
+t=100ms LLM begins streaming response
+t=500ms User sends message B (interrupt signal)
+t=510ms LLM generation cancelled
+t=520ms LLM begins processing B with full context (A + partial response + B)
+```
+
+**Tradeoffs**: Excellent UX for interactive scenarios—users feel in control and aren't forced to wait for unwanted output. However, this pattern requires careful handling of partial state: should the interrupted response be shown? Stored? Included in context for the next turn? It also assumes a single authoritative user who can signal intent; less suitable for multi-actor systems or automated event sources.
+
 ### Disable Concurrent Input
 
 **Example: Many chatbot UIs**
@@ -85,16 +105,37 @@ Allow all events to trigger processing immediately. Multiple LLM calls may run c
 
 ### Debounce and Validate (Our Focus)
 
-For scenarios where events arrive in bursts and we want responses to reflect the complete burst, we can combine:
+For scenarios where events arrive in bursts and we want responses to reflect the complete burst, we can combine three complementary techniques:
 
-- **Event debouncing**: Wait for a settling period before triggering LLM processing
-- **Optimistic locking**: Detect when state has changed during processing
-- **Semantic versioning**: Track logical state changes independent of wall-clock time
+- **Event debouncing**: Wait for a configurable settling period before triggering LLM processing. Each new event resets the timer, ensuring we capture the full burst before committing resources to generation. To prevent starvation under sustained event pressure, implementations can optionally cap the number of resets (e.g., "process after 500ms of quiet *or* after 5 resets, whichever comes first").
+- **Optimistic locking**: Rather than blocking on locks during processing, we proceed optimistically and validate at commit time. If state has drifted (new events arrived), we discard the stale response and retry with fresh context.
+- **Semantic versioning**: Track logical state changes via an incrementing counter (semantic clock) independent of wall-clock time. This provides a reliable ordering primitive for detecting when context has evolved.
+
+The key insight is that these three mechanisms address different phases of the problem: debouncing handles the *pre-processing* phase (when to start), semantic versioning handles *detection* (knowing when state changed), and optimistic locking handles the *post-processing* phase (whether to commit).
+
+```
+t=0    User sends message A
+t=50ms System event B fires (account upgrade)
+       [Debounce timer resets]
+t=200ms User sends clarification C
+        [Debounce timer resets]
+t=700ms Debounce period expires, LLM processing begins
+        [Semantic clock captured: 3]
+t=800ms User sends message D
+        [Semantic clock advances to 4, but processing continues]
+t=2500ms LLM completes, attempts commit
+         [CAS fails: clock 3 ≠ current 4]
+         [Response discarded, retry triggered]
+t=3000ms Debounce expires again, fresh processing with A+B+C+D
+```
 
 This approach suits applications like:
 - Multi-turn conversations with rapid clarifications
 - Document analysis where multiple edits arrive quickly
 - Workflow orchestration with cascading events
+- Backend systems processing webhooks that arrive in bursts (e.g., multiple related updates from an external API)
+
+**Tradeoffs**: Debouncing introduces intentional latency—users won't see responses until the settling period expires. This is acceptable when response *correctness* outweighs response *speed*, but frustrating for highly interactive use cases. The retry mechanism also means wasted tokens when events arrive mid-processing, though mid-stream validity checks can mitigate this cost. Finally, tuning the debounce window requires understanding your event arrival patterns: too short and you'll frequently invalidate; too long and users perceive sluggishness.
 
 ## Proposed Architecture
 
