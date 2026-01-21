@@ -17,6 +17,31 @@ This is a Jekyll-based blog and portfolio website featuring:
 - **Ruby**: Version 3.4.7 (see `.ruby-version`)
 - **Bundler**: Ruby dependency manager
 
+### Setting Up Ruby with rbenv (macOS)
+
+```bash
+# Install rbenv via Homebrew
+brew install rbenv ruby-build
+
+# Initialize rbenv (add to your shell profile)
+rbenv init
+
+# Restart your terminal, then install Ruby 3.4.7
+rbenv install 3.4.7
+
+# Set as the local version for this project
+rbenv local 3.4.7
+
+# Verify the correct version is active
+ruby -v
+```
+
+After installing Ruby, install Bundler:
+
+```bash
+gem install bundler
+```
+
 ## Getting Started
 
 ### 1. Install Dependencies
