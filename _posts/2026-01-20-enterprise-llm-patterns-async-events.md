@@ -7,13 +7,20 @@ tags: [llm, event-sourcing, async, python, fastapi, postgresql]
 excerpt: "Exploring architecture patterns for handling asynchronous events in LLM-powered applications, with a focus on debouncing, optimistic locking, and semantic versioning."
 ---
 
+_This is the first post in what I hope will become a series of short and to the point technical writeups about some architectural patterns I've been experimenting with vis-a-vis adopting LLM usage in SaaS and enterprise-grade applications. Any opinions expressed are solely my own and do not express the views or opinions of my employer. I welcome feedback and discussion on this post - find me via social links on this site!_ 
+
+
 # Introduction
+
 
 In modern SaaS applications, Large Language Models (LLMs) are increasingly deployed in contexts where inputs arrive asynchronously and unpredictably. Consider a customer support platform where an AI assistant helps users troubleshoot issues: while the LLM processes a user's initial message, the user might send follow-up clarifications, system events might fire (e.g., a webhook indicating the user's subscription status changed), or external integrations might push relevant data.
 
 This creates a fundamental tension: **LLM processing is slow relative to the rate at which state can change**. A response generated based on stale state may be incorrect, confusing, or even harmful to the user experience.
 
-This post explores the design space for handling this problem and proposes a concrete architecture suitable for scenarios where events arrive in short bursts and responses should reflect the complete, up-to-date state.
+This post explores the solution space for handling this problem and proposes a concrete architecture suitable for scenarios where events arrive in short bursts and responses should reflect the complete, up-to-date state. 
+
+_TLDR; We employ a combination of optimistic locking (via Compare-and-swap primitives) and event debouncing._
+
 
 ## The Problem Space
 
@@ -39,7 +46,7 @@ Several factors influence the appropriate solution:
 4. **Correctness requirements**: Is a stale response acceptable, or must we guarantee freshness?
 5. **User experience**: Should we show partial/streaming responses, or wait for complete ones?
 
-## The Design Space
+## The Solution Space
 
 Different products make different tradeoffs. Here's a sampling of some common approaches seen in the wild:
 
