@@ -38,6 +38,8 @@ I'm a core member of [PromptRomp](https://github.com/promptromp/), an open-sourc
 
 - **[mockstack](https://github.com/promptromp/mockstack)** - An API mocking workhorse designed to streamline API development and testing workflows. Built to handle complex API simulation scenarios with ease.
 
+- **[pdfalive](https://github.com/promptromp/pdfalive)** - A Python library and CLI toolkit that enhances PDF files using LLM capabilities. Features include automatic table of contents generation with clickable bookmarks, intelligent OCR detection for scanned documents, and smart batch file renaming using natural language instructions. Supports multiple LLM providers via LangChain (OpenAI, Anthropic, Ollama).
+
 All PromptRomp projects are open-source under the MIT license and welcome contributions from the community.
 
 ---
