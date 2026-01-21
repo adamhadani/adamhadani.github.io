@@ -108,18 +108,18 @@ This approach suits applications like:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Event Sources                             │
-│  (User Messages, Webhooks, System Events, Scheduled Tasks)       │
+│                        Event Sources                            │
+│  (User Messages, Webhooks, System Events, Scheduled Tasks)      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Event Stream (Kafka/Redis)                   │
+│                     Event Stream (Kafka/Redis)                  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Stream Processor                              │
+│                    Stream Processor                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │  Debouncer  │─▶│   Persist   │─▶│  Trigger LLM Processing │  │
 │  │  (per-ctx)  │  │   Event     │  │  (with generation token)│  │
@@ -128,7 +128,7 @@ This approach suits applications like:
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      LLM Processor                               │
+│                      LLM Processor                              │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │ Load State  │─▶│  Call LLM   │─▶│ Validate & Commit (CAS) │  │
 │  │ + Gen Token │  │  (stream)   │  │  or Retry/Discard       │  │
@@ -165,21 +165,9 @@ Each conversation context follows this state machine:
             └────────────────────────┘
 ```
 
-## Implementation
+## Considerations and Tradeoffs
 
-Let's build a proof-of-concept implementation. The full code is structured as follows:
-
-```
-llm_events/
-├── models.py          # Domain models and database schema
-├── persistence.py     # Event store and optimistic locking
-├── processor.py       # Stream processing and debouncing
-├── llm_service.py     # LLM integration with cancellation
-├── api.py             # FastAPI endpoints
-└── config.py          # Configuration
-```
-
-### Database Schema and Models
+### When This Pattern Fits
 
 We use an event-sourcing inspired schema where events are immutable and state is derived:
 
@@ -1801,9 +1789,328 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-## Cost Optimization Variants
+## Conclusion
 
-### Variant 1: Aggressive Early Termination
+Handling asynchronous events in LLM-powered applications requires careful consideration of the tradeoffs between responsiveness, correctness, and cost. The architecture presented here—combining event sourcing, optimistic locking via semantic clocks, and debouncing—provides a robust foundation for scenarios where events arrive in bursts and responses should reflect complete, up-to-date state.
+
+The key insights are:
+
+1. **Semantic clocks** provide a logical ordering that's more meaningful than wall-clock time for detecting state drift
+2. **Optimistic locking via CAS** ensures responses are only committed if still valid
+3. **Debouncing** coalesces rapid events into single processing runs
+4. **Mid-stream validity checks** enable early termination to save costs
+
+The proof-of-concept implementation demonstrates these concepts with production-grade patterns: proper async/await usage, type safety, separation of concerns, and extensibility for cost optimization variants.
+
+As LLMs become more deeply integrated into real-time applications, patterns like these will become increasingly important for building systems that are both responsive and correct.
+
+---
+
+## Appendix: Implementation
+
+> **⚠️ Didactic Proof-of-Concept**: The code samples below are intended as educational illustrations of the architectural concepts discussed above. They demonstrate core patterns and mechanisms but should *not* be considered production-ready. Real implementations would require additional considerations: comprehensive error handling, monitoring/observability, security hardening, performance optimization, and extensive testing. These samples trade off completeness for clarity to highlight the key architectural ideas.
+
+### Implementation Overview
+
+Let's build a proof-of-concept implementation. The full code is structured as follows:
+
+```
+llm_events/
+├── models.py          # Domain models and database schema
+├── persistence.py     # Event store and optimistic locking
+├── processor.py       # Stream processing and debouncing
+├── llm_service.py     # LLM integration with cancellation
+├── api.py             # FastAPI endpoints
+└── config.py          # Configuration
+```
+
+### Database Schema and Models
+
+We use an event-sourcing inspired schema where events are immutable and state is derived:
+
+```python
+# models.py
+"""
+Domain models for the async LLM event processing system.
+
+Key concepts:
+- ContextState: Aggregate root tracking semantic version and processing state
+- Event: Immutable event records with semantic clock assignment
+- LLMResponse: Generated responses with validity tracking
+"""
+
+from __future__ import annotations
+
+import enum
+from datetime import datetime
+from typing import Any
+from uuid import UUID, uuid4
+
+from pydantic import BaseModel, Field
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Enum as SAEnum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    func,
+)
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+class Base(DeclarativeBase):
+    """SQLAlchemy declarative base with common configurations."""
+    pass
+
+
+class ProcessingState(enum.Enum):
+    """State machine states for context processing."""
+    IDLE = "idle"
+    DEBOUNCING = "debouncing"
+    PROCESSING = "processing"
+
+
+class ContextState(Base):
+    """
+    Aggregate root for a conversation/processing context.
+    
+    The semantic_clock increments with each meaningful state change,
+    providing a logical ordering independent of wall-clock time.
+    The version field enables optimistic locking via CAS operations.
+    """
+    __tablename__ = "context_states"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), 
+        primary_key=True, 
+        default=uuid4
+    )
+    
+    # Semantic versioning - increments on meaningful state changes
+    semantic_clock: Mapped[int] = mapped_column(
+        BigInteger, 
+        nullable=False, 
+        default=0
+    )
+    
+    # Optimistic locking version - increments on any update
+    version: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False, 
+        default=0
+    )
+    
+    # Current processing state
+    state: Mapped[ProcessingState] = mapped_column(
+        SAEnum(ProcessingState),
+        nullable=False,
+        default=ProcessingState.IDLE,
+    )
+    
+    # Generation token for the current/last processing run
+    # Used to validate responses against state drift
+    current_generation: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        nullable=True,
+    )
+    
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+    
+    # Relationships
+    events: Mapped[list[Event]] = relationship(
+        "Event", 
+        back_populates="context",
+        order_by="Event.semantic_clock",
+    )
+    responses: Mapped[list[LLMResponse]] = relationship(
+        "LLMResponse",
+        back_populates="context",
+    )
+
+    __table_args__ = (
+        Index("ix_context_states_state", "state"),
+    )
+
+
+class EventType(enum.Enum):
+    """Classification of events that can affect context state."""
+    USER_MESSAGE = "user_message"
+    SYSTEM_EVENT = "system_event"
+    EXTERNAL_WEBHOOK = "external_webhook"
+    SCHEDULED_TASK = "scheduled_task"
+
+
+class Event(Base):
+    """
+    Immutable event record in the event store.
+    
+    Events are assigned a semantic_clock value upon persistence,
+    establishing a total ordering within their context.
+    """
+    __tablename__ = "events"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+    )
+    context_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("context_states.id"),
+        nullable=False,
+    )
+    
+    # Event classification and content
+    event_type: Mapped[EventType] = mapped_column(
+        SAEnum(EventType),
+        nullable=False,
+    )
+    payload: Mapped[dict[str, Any]] = mapped_column(
+        JSONB,
+        nullable=False,
+    )
+    
+    # Assigned during persistence - provides total ordering
+    semantic_clock: Mapped[int] = mapped_column(
+        BigInteger,
+        nullable=False,
+    )
+    
+    # Wall-clock timestamp for debugging/analytics
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    
+    # Relationship
+    context: Mapped[ContextState] = relationship(
+        "ContextState",
+        back_populates="events",
+    )
+
+    __table_args__ = (
+        Index("ix_events_context_clock", "context_id", "semantic_clock"),
+    )
+
+
+class LLMResponse(Base):
+    """
+    Record of an LLM-generated response.
+    
+    Tracks the generation token and semantic clock at generation time,
+    enabling staleness detection and response validity assessment.
+    """
+    __tablename__ = "llm_responses"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+    )
+    context_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("context_states.id"),
+        nullable=False,
+    )
+    
+    # Links response to specific processing run
+    generation_token: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        nullable=False,
+    )
+    
+    # Semantic clock value when processing started
+    # Response is valid iff this matches context's clock at commit time
+    based_on_clock: Mapped[int] = mapped_column(
+        BigInteger,
+        nullable=False,
+    )
+    
+    # The actual response content
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+    
+    # Response metadata
+    model: Mapped[str] = mapped_column(String(100), nullable=False)
+    input_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    output_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+    # Validity tracking
+    is_valid: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+    )
+    invalidated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    
+    # Relationship
+    context: Mapped[ContextState] = relationship(
+        "ContextState",
+        back_populates="responses",
+    )
+
+    __table_args__ = (
+        Index("ix_responses_context_valid", "context_id", "is_valid"),
+        Index("ix_responses_generation", "generation_token"),
+    )
+
+
+# Pydantic models for API/messaging boundaries
+
+class EventPayload(BaseModel):
+    """Incoming event data before persistence."""
+    context_id: UUID
+    event_type: EventType
+    payload: dict[str, Any]
+    idempotency_key: str | None = None
+
+
+class ProcessingResult(BaseModel):
+    """Result of an LLM processing attempt."""
+    generation_token: UUID
+    success: bool
+    response_id: UUID | None = None
+    invalidation_reason: str | None = None
+    
+    
+class ContextSnapshot(BaseModel):
+    """Point-in-time view of context state for LLM processing."""
+    context_id: UUID
+    semantic_clock: int
+    generation_token: UUID
+    events: list[dict[str, Any]]
+    
+    class Config:
+        from_attributes = True
+```
+
+### Cost Optimization Variants
+
+#### Variant 1: Aggressive Early Termination
 
 For cost-sensitive applications, we can terminate LLM calls immediately when new events arrive, rather than waiting for periodic validity checks:
 
@@ -1846,7 +2153,7 @@ class EagerCancellingProcessor(EventProcessor):
             self._llm_service.signal_cancellation(current_gen)
 ```
 
-### Variant 2: Batched Validity Checks
+#### Variant 2: Batched Validity Checks
 
 For high-throughput systems, we can batch validity checks across multiple concurrent LLM calls:
 
@@ -1928,44 +2235,7 @@ class BatchValidityChecker:
                 future.set_result(is_valid)
 ```
 
-## Considerations and Tradeoffs
+---
 
-### When This Pattern Fits
+**Repository & Further Reading**: Full working examples, deployment instructions, and benchmarks can be found in the referenced implementation repository (link available upon request).
 
-This architecture works well when:
-
-- Events arrive in bursts with natural settling periods
-- Response freshness is more important than minimal latency
-- Cost optimization through avoiding wasted tokens matters
-- You need an audit trail of state changes (event sourcing)
-
-### When to Consider Alternatives
-
-Consider different approaches when:
-
-- **Latency is critical**: Debouncing adds inherent delay
-- **Events are truly continuous**: No natural settling period to exploit
-- **Simple request/response suffices**: Don't over-engineer
-- **Partial responses are acceptable**: Streaming to user might be better than invalidation
-
-### Operational Considerations
-
-- **Monitor debounce effectiveness**: Track how often responses are invalidated
-- **Tune debounce period**: Too short = frequent invalidations; too long = poor UX
-- **Set up alerting**: Detect runaway retry loops or stuck contexts
-- **Consider circuit breakers**: Prevent cascading failures from LLM timeouts
-
-## Conclusion
-
-Handling asynchronous events in LLM-powered applications requires careful consideration of the tradeoffs between responsiveness, correctness, and cost. The architecture presented here—combining event sourcing, optimistic locking via semantic clocks, and debouncing—provides a robust foundation for scenarios where events arrive in bursts and responses should reflect complete, up-to-date state.
-
-The key insights are:
-
-1. **Semantic clocks** provide a logical ordering that's more meaningful than wall-clock time for detecting state drift
-2. **Optimistic locking via CAS** ensures responses are only committed if still valid
-3. **Debouncing** coalesces rapid events into single processing runs
-4. **Mid-stream validity checks** enable early termination to save costs
-
-The proof-of-concept implementation demonstrates these concepts with production-grade patterns: proper async/await usage, type safety, separation of concerns, and extensibility for cost optimization variants.
-
-As LLMs become more deeply integrated into real-time applications, patterns like these will become increasingly important for building systems that are both responsive and correct.
