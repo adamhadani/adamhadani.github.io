@@ -105,16 +105,37 @@ Allow all events to trigger processing immediately. Multiple LLM calls may run c
 
 ### Debounce and Validate (Our Focus)
 
-For scenarios where events arrive in bursts and we want responses to reflect the complete burst, we can combine:
+For scenarios where events arrive in bursts and we want responses to reflect the complete burst, we can combine three complementary techniques:
 
-- **Event debouncing**: Wait for a settling period before triggering LLM processing
-- **Optimistic locking**: Detect when state has changed during processing
-- **Semantic versioning**: Track logical state changes independent of wall-clock time
+- **Event debouncing**: Wait for a configurable settling period before triggering LLM processing. Each new event resets the timer, ensuring we capture the full burst before committing resources to generation. To prevent starvation under sustained event pressure, implementations can optionally cap the number of resets (e.g., "process after 500ms of quiet *or* after 5 resets, whichever comes first").
+- **Optimistic locking**: Rather than blocking on locks during processing, we proceed optimistically and validate at commit time. If state has drifted (new events arrived), we discard the stale response and retry with fresh context.
+- **Semantic versioning**: Track logical state changes via an incrementing counter (semantic clock) independent of wall-clock time. This provides a reliable ordering primitive for detecting when context has evolved.
+
+The key insight is that these three mechanisms address different phases of the problem: debouncing handles the *pre-processing* phase (when to start), semantic versioning handles *detection* (knowing when state changed), and optimistic locking handles the *post-processing* phase (whether to commit).
+
+```
+t=0    User sends message A
+t=50ms System event B fires (account upgrade)
+       [Debounce timer resets]
+t=200ms User sends clarification C
+        [Debounce timer resets]
+t=700ms Debounce period expires, LLM processing begins
+        [Semantic clock captured: 3]
+t=800ms User sends message D
+        [Semantic clock advances to 4, but processing continues]
+t=2500ms LLM completes, attempts commit
+         [CAS fails: clock 3 ≠ current 4]
+         [Response discarded, retry triggered]
+t=3000ms Debounce expires again, fresh processing with A+B+C+D
+```
 
 This approach suits applications like:
 - Multi-turn conversations with rapid clarifications
 - Document analysis where multiple edits arrive quickly
 - Workflow orchestration with cascading events
+- Backend systems processing webhooks that arrive in bursts (e.g., multiple related updates from an external API)
+
+**Tradeoffs**: Debouncing introduces intentional latency—users won't see responses until the settling period expires. This is acceptable when response *correctness* outweighs response *speed*, but frustrating for highly interactive use cases. The retry mechanism also means wasted tokens when events arrive mid-processing, though mid-stream validity checks can mitigate this cost. Finally, tuning the debounce window requires understanding your event arrival patterns: too short and you'll frequently invalidate; too long and users perceive sluggishness.
 
 ## Proposed Architecture
 
