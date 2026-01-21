@@ -67,6 +67,26 @@ User: "Actually, also update the tests"
 
 **Tradeoffs**: Simple mental model, guaranteed consistency, but latency accumulates for rapid interactions.
 
+### Allow User to Interrupt
+
+**Examples: Claude Desktop, ChatGPT, most LLM chat interfaces**
+
+A widely adopted pattern in conversational LLM applications: allow users to interrupt an in-progress generation at any time. When the user sends a new message (or clicks a "Stop" button), the current generation is immediately cancelled and the system either processes the new input or waits in an idle state.
+
+This pattern emerged naturally in consumer LLM chat applications where user intent can shift mid-response. If the model is heading in the wrong direction or the user realizes they asked the wrong question, waiting for completion wastes both time and tokens. Desktop applications like Claude and ChatGPT prominently feature a stop button that becomes active during generation, and sending a new message implicitly triggers interruption.
+
+Beyond chat interfaces, this pattern appears in AI-assisted coding tools. GitHub Copilot and similar inline completion systems cancel pending suggestions when the user continues typing—the act of typing signals that the current suggestion context is stale. The key insight: **user action is a strong signal of intent change**.
+
+```
+t=0    User sends message A
+t=100ms LLM begins streaming response
+t=500ms User sends message B (interrupt signal)
+t=510ms LLM generation cancelled
+t=520ms LLM begins processing B with full context (A + partial response + B)
+```
+
+**Tradeoffs**: Excellent UX for interactive scenarios—users feel in control and aren't forced to wait for unwanted output. However, this pattern requires careful handling of partial state: should the interrupted response be shown? Stored? Included in context for the next turn? It also assumes a single authoritative user who can signal intent; less suitable for multi-actor systems or automated event sources.
+
 ### Disable Concurrent Input
 
 **Example: Many chatbot UIs**
