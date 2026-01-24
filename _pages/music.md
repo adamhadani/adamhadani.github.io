@@ -33,10 +33,10 @@ I've performed at various venues and festivals palying Jazz, especially in my yo
 
 A random selection of some recorded materials in no particular order:
 
-[Isolation Band - Change Partners](https://www.youtube.com/watch?v=212f8PRE9kw)
-[Isolation Band - Old Folks](https://www.youtube.com/watch?v=PSOnFvvzHDk)
-[Isolation Band - Like Someone in Love](https://www.youtube.com/watch?v=-XT1MqNMXaU)
-[Softly as in a morning sunshine](https://www.youtube.com/watch?v=a6EEIhBUhYQ)
+- [Isolation Band - Change Partners](https://www.youtube.com/watch?v=212f8PRE9kw)
+- [Isolation Band - Old Folks](https://www.youtube.com/watch?v=PSOnFvvzHDk)
+- [Isolation Band - Like Someone in Love](https://www.youtube.com/watch?v=-XT1MqNMXaU)
+- [Softly as in a morning sunshine](https://www.youtube.com/watch?v=a6EEIhBUhYQ)
 
 
 ### Film, Beats, and what have yous
@@ -45,15 +45,15 @@ I've writte some short cinematic cues, beats and electronic music over the years
 
 Some random selection of beats:
 
-[The Sound of Your Love](https://on.soundcloud.com/egN4ijE82eUA05J0cm)
-[Maybe we will meet again](https://on.soundcloud.com/3hXYssk38yUSyWgerp)
-[Flow with you](https://on.soundcloud.com/0dM5CN57aRJ8sFTGel)
-[hoover damn](https://on.soundcloud.com/TomG3MeXRwe0bzTpZi)
-[Heat](https://on.soundcloud.com/hJSyNlOoaVQyLfnotX) (if you're a UFC fighter in the making looking for a walkout tune this is it right here :-))
-[Spaced out](https://on.soundcloud.com/ETGNRPVQgxhdgHuFkB)
+- [The Sound of Your Love](https://on.soundcloud.com/egN4ijE82eUA05J0cm)
+- [Maybe we will meet again](https://on.soundcloud.com/3hXYssk38yUSyWgerp)
+- [Flow with you](https://on.soundcloud.com/0dM5CN57aRJ8sFTGel)
+- [hoover damn](https://on.soundcloud.com/TomG3MeXRwe0bzTpZi)
+- [Heat](https://on.soundcloud.com/hJSyNlOoaVQyLfnotX) (if you're a UFC fighter in the making looking for a walkout tune this is it right here :-))
+- [Spaced out](https://on.soundcloud.com/ETGNRPVQgxhdgHuFkB)
 
 
-Some of this was featured in some films, TV etc. which one day i'll get around to collecting. 
+Some of my music was featured in some films, TV etc. which one day i'll get around to collecting as well hopefully. 
 
 My favorite somewhat recent feature is probably [SMB Bundi - SMB Freestyle](https://on.soundcloud.com/WFKfGOAhl6UnDfjgQR) - legit!
 
