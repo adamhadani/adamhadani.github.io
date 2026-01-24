@@ -7,7 +7,7 @@ tags: [python, debugging, gevent, celery, llm, claude-code, yfinance]
 excerpt: "How Python 3.14's new sys.remote_exec() combined with an LLM coding assistant helped diagnose and fix a tricky threading conflict between yfinance and gevent in a production Celery worker."
 ---
 
-_This post documents a real debugging session where Python 3.14's new [remote debugging attachment protocol](https://docs.python.org/3/howto/remote_debugging.html), combined with Claude Code as an interactive assistant, allows us to diagnose and fix a production issue that would have been nearly impossible to track down with traditional debugging approaches. As always, any opinions expressed are solely my own and do not express the views or opinions of my employer. I welcome feedback and discussion on this post - find me via social links on this site!_
+_This post documents a real debugging session where Python 3.14's new [remote debugging attachment protocol](https://docs.python.org/3/howto/remote_debugging.html), combined with [Claude Code](https://code.claude.com/docs/en/overview) as an interactive assistant, allows us to diagnose and fix a production issue that would have been nearly impossible to track down with traditional debugging approaches. As always, any opinions expressed are solely my own and do not express the views or opinions of my employer. I welcome feedback and discussion on this post - find me via social links on this site!_
 
 
 # Introduction
@@ -80,7 +80,7 @@ Here's where the LLM assistance became valuable. I was using Claude Code (Anthro
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-Better yet, in cases where you can run the process locally on your development workstation and reproduce the issue (e.g. deadlock in our case), this gets even simpler - you can simply instructor claude code to find the OS process (e.g. celery worker process PID), and directly interact with it. This makes the debugging iteration loop completely human-free: Claude Code will iterate on writing scripts, injecting into process, observing the tracebacks and so forth. In my case, this pinpointed the issue in a matter of minutes.
+Better yet, in cases where you can run the process locally on your development workstation and reproduce the issue (e.g. deadlock in our case), this gets even simpler - you can simply instruct Claude Code to find the OS process (e.g. celery worker process PID), and directly interact with it. This makes the debugging iteration loop completely human-free: Claude Code will iterate on writing scripts, injecting into process, observing the tracebacks and so forth. In my case, this pinpointed the issue in a matter of minutes.
 
 ### Round 1: Basic Stack Traces
 
