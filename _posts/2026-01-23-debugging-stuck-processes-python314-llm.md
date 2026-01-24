@@ -1,24 +1,24 @@
 ---
 layout: single
-title: "Debugging Stuck Processes with Python 3.14's new live debugging feature and Claude Code for LLM-Assisted Introspection"
+title: "Debugging Processes with Python 3.14's new live debugging feature and Claude Code for LLM-Assisted Introspection"
 date: 2026-01-23
 categories: [debugging, python, llm]
 tags: [python, debugging, gevent, celery, llm, claude-code, yfinance]
 excerpt: "How Python 3.14's new sys.remote_exec() combined with an LLM coding assistant helped diagnose and fix a tricky threading conflict between yfinance and gevent in a production Celery worker."
 ---
 
-_This post documents a real debugging session where Python 3.14's new remote execution feature, combined with Claude Code as an interactive assistant, allowed me to diagnose and fix a production issue that would have been nearly impossible to track down with traditional debugging approaches. As always, any opinions expressed are solely my own and do not express the views or opinions of my employer. I welcome feedback and discussion on this post - find me via social links on this site!_
+_This post documents a real debugging session where Python 3.14's new [remote debugging attachment protocol](https://docs.python.org/3/howto/remote_debugging.html), combined with Claude Code as an interactive assistant, allows us to diagnose and fix a production issue that would have been nearly impossible to track down with traditional debugging approaches. As always, any opinions expressed are solely my own and do not express the views or opinions of my employer. I welcome feedback and discussion on this post - find me via social links on this site!_
 
 
 # Introduction
 
-Production debugging is hard. Debugging production processes that are stuck—not crashing, not throwing errors, just... frozen — is harder. This is especially so in the case of concurrency-related issues where race conditions and deadlocks are notoriously hard to reason about. I recently had the happy ocassion to deal with such a scenario, where a combination of [cooperative multi-tasking](https://en.wikipedia.org/wiki/Cooperative_multitasking) (a la gevent), asyncio, and thread pool executors all conspired together to make for an especially potent mixture.
+Production debugging is hard. Debugging production processes that are stuck — not crashing, not throwing errors, just... frozen — is harder. This is especially so in the case of concurrency-related issues where race conditions and deadlocks are notoriously hard to reason about. I recently had the happy ocassion to deal with such a scenario, where a combination of [cooperative multi-tasking](https://en.wikipedia.org/wiki/Cooperative_multitasking) (a la [gevent](https://www.gevent.org/)), [asyncio](https://docs.python.org/3/library/asyncio.html), and thread pool executors all conspired together to make for an especially potent deadlock.
 
-This post presents an approach to debugging under difficult conditions, making use of recent technologies - namely Python 3.14 and Claude Code. Here we're tracking down a subtle interaction between three technologies that individually work fine but together create a deadlock: **Celery workers using gevent pools**, **yfinance's internal threading**, and **Python's asyncio**. The bug only manifested in production workloads, not in tests, as often happens in such cases.
+This post presents an approach to debugging under difficult conditions, making use of recent technologies - namely the [recently released](https://www.python.org/downloads/release/python-3140/) Python 3.14 and Claude Code. Here we're tracking down a subtle interaction between three technologies that individually work fine but together create a deadlock: **Celery workers using gevent pools**, **yfinance's internal threading**, and **Python's asyncio**. The bug only manifested in production workloads, not in tests, as often happens in such cases.
 
 The hero of this story is Python 3.14's new `sys.remote_exec()` function, which lets you inject arbitrary Python code into a running process. Combined with an LLM assistant (Claude Code) that could iterate on diagnostic scripts in real-time, *what would have been days of log-and-restart debugging became a 30-minute investigation*.
 
-_TLDR; Python 3.14's `sys.remote_exec()` enables "live" debugging of stuck processes. Pair it with an LLM that can generate targeted diagnostic scripts, and you get an interactive debugging session with a frozen process._
+_TLDR; Python 3.14's `sys.remote_exec()` enables "live" debugging of stuck processes. Pair it with an LLM that can generate targeted diagnostic scripts, observe their output, and iterate on them in a feedback loop, and you get an interactive debugging session with a frozen process, solving notoriously tricky concurrency issues in minutes._
 
 
 ## The Problem
