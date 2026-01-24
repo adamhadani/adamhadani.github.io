@@ -48,12 +48,14 @@ Some random selection of beats:
 [The Sound of Your Love](https://on.soundcloud.com/egN4ijE82eUA05J0cm)
 [Maybe we will meet again](https://on.soundcloud.com/3hXYssk38yUSyWgerp)
 [Flow with you](https://on.soundcloud.com/0dM5CN57aRJ8sFTGel)
+[hoover damn](https://on.soundcloud.com/TomG3MeXRwe0bzTpZi)
+[Heat](https://on.soundcloud.com/hJSyNlOoaVQyLfnotX) (if you're a UFC fighter in the making looking for a walkout tune this is it right here :-))
 [Spaced out](https://on.soundcloud.com/ETGNRPVQgxhdgHuFkB)
 
 
 Some of this was featured in some films, TV etc. which one day i'll get around to collecting. 
 
-My favorite somewhat recent feature is probably [SMB Bundi - SMB Freestyle](https://on.soundcloud.com/WFKfGOAhl6UnDfjgQR)which would be my walkout tune for sure if I got picked up by UFC :-)
+My favorite somewhat recent feature is probably [SMB Bundi - SMB Freestyle](https://on.soundcloud.com/WFKfGOAhl6UnDfjgQR) - legit!
 
 ### Google Doodles
 
