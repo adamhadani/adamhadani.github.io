@@ -61,6 +61,6 @@ My favorite somewhat recent feature is probably [SMB Bundi - SMB Freestyle](http
 
 I had the incredible good fortune to score a couple of Google Doodles. If only hits on Google landing page paid royalties.. 
 
-[Google Doodle - Langston Hughes’ 113th Birthday](https://doodles.google/doodle/langston-hughes-113th-birthday/)
-[Google Doodle - Hedy Lamarr's 101st Birthday](https://doodles.google/doodle/hedy-lamarrs-101st-birthday/)
+- [Google Doodle - Langston Hughes’ 113th Birthday](https://doodles.google/doodle/langston-hughes-113th-birthday/)
+- [Google Doodle - Hedy Lamarr's 101st Birthday](https://doodles.google/doodle/hedy-lamarrs-101st-birthday/)
 
