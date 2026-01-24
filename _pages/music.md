@@ -29,7 +29,7 @@ Over the years I've performed and written music across a diverse range of genres
 
 ### Jazz
 
-I've performed at various venues and festivals palying Jazz, especially in my younger years, often with my father, the great and accomplished guitar player [Amos Ever-Hadani](https://artlist.io/royalty-free-music/artist/amos-ever-hadani/2305)!. 
+I've performed at various venues and festivals palying Jazz, especially in my younger years, often with my father, the great and accomplished guitar player, composer and all around bad dude [Amos Ever-Hadani](https://artlist.io/royalty-free-music/artist/amos-ever-hadani/2305)! 
 
 A random selection of some recorded materials in no particular order:
 
