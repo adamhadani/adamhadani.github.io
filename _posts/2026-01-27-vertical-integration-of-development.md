@@ -55,15 +55,17 @@ We've been building proof-of-concept implementations in 2-3 days that would have
 
 Here's an underappreciated impact: tools that were never worth building before suddenly have positive ROI.
 
-At a startup, you rarely have bandwidth to build internal tooling. The maintenance burden isn't worth it for a 10-person team. But when the LLM can scaffold these tools in hours and help maintain them, the calculus changes completely.
+At a startup, you rarely have bandwidth to build internal tooling. The maintenance burden isn't worth it for a 10-person team. But when the LLM can scaffold these tools in hours and help maintain them, the calculus changes completely. This relates to the "building is fun again" sentiment sweeping through X apropos of using these tools to write code. 
 
-We've built:
+These past few months I found myself building tools that I now use daily, with some gaining traction across teams:
 
-- **Glospill**: A utility that quickly surfaces related metadata and links for debugging, saving hours per incident
-- **Mockstack**: A smart proxy and microservice mocking layer that enables running complex event-based flows locally without replicating the entire platform
+- **[Mockstack](https://github.com/promptromp/mockstack)**: A smart proxy and microservice mocking layer that enables running complex event-based flows locally without replicating the entire platform.
+- **[pytest-impacted](https://github.com/promptromp/pytest-impacted)**: A pytest plugin that selectively runs unit-tests based on introspection of git commit history, performing AST and code dependency graph analysis to figure out impacted tests.
+- **Custom Agent Skills**: Including a [remote Python process debugging skill](https://github.com/promptromp/python-remote-debug-skill/tree/main) leveraging the recent Python 3.14 remote debugging capabilities.
 - **Custom MCP servers**: Including a Grafana integration that makes log analysis conversational
+- Internal tooling for pulling up all relevant links and metadata for various platform resources, saving precious minutes of manually using Postman or otherwise clicking through links to find UUIDs, etc etc.
 
-None of these would have been worth the investment pre-LLM. All of them now pay dividends daily.
+None of these would have likely seen the light of day if I had no LLM agents to take care of a lot of the time consuming drudgery involved in creating such tooling. All of them now pay dividends daily.
 
 ### Kubernetes Debugging Without the Pain
 
@@ -83,23 +85,23 @@ If you tried LLM-assisted development a year ago and were underwhelmed, it's tim
 
 Where is this heading? I see several trends converging:
 
-**The CLI as command hub**: Tools like Claude Code become the primary interface for development work, with MCP providing connectivity to everything else—observability, deployment, documentation, communication.
+**The LLM Agent as command hub**: Tools like [Claude Code](https://code.claude.com/docs/en/overview), [Codex](https://developers.openai.com/codex/cli/), [Cursor CLI](https://cursor.com/cli) etc. become the primary interface for development work, with MCP providing connectivity to everything else—observability, deployment, documentation, communication. Right now the trend is for these to be TUI / CLI style tools although IDE integrations (E.g. Cursor IDE, VS Code) is fairly popular too. exact form factor TBD.
 
-**Organizational knowledge codified**: Teams will invest heavily in CLAUDE.md rules and custom skills that capture institutional knowledge. The competitive advantage shifts from "who has the best developers" to "who has best captured their development practices in a form LLMs can leverage."
+**Organizational knowledge codified**: Teams will invest heavily in CLAUDE.md style rules and custom skills that capture institutional knowledge. The competitive advantage shifts from "who has the best developers" to "who has best captured their development practices in a form LLMs can leverage.". These can be distributed e.g. via a GitHub repository (public or private) serving as a "plugin / skill marketplace" and rules files can be distributed either per repository or in a centralized way (I suspect [Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) might rear their ugly head here for some quick wins :-))
 
-**Cloud-hybrid execution**: The ability to report issues and open candidate PRs directly from Slack (via cloud-based execution) while maintaining the power of local CLI tools creates flexibility in how and where work happens.
+**Cloud-hybrid execution**: The ability to report issues and open candidate PRs directly from Slack (via cloud-based execution) while maintaining the power of local CLI tools creates flexibility in how and where work happens. Claude Code in particular recently introdued [Slack Integration](https://code.claude.com/docs/en/slack) and Google has been experimenting with [Jules](https://jules.google/) for a while now, letting you access it via the web and create PRs on the fly. This holds a lot of promise, although for the time being I find the power of having a full development environment with all the needed permissions on my local dev workstation a clear winner.
 
-**Cross-repository development**: This is still an edge case today, but rapidly improving. As context windows grow and tools better support multi-project workspaces, the artificial boundaries between repositories will matter less.
+**Cross-repository development**: This is still an edge case today, but rapidly improving. As context windows grow and tools better support multi-project workspaces, the artificial boundaries between repositories will matter less. Having BE microservices, GraphQL API gateways, IaaC repositories, all available for the LLM to switch back and forth between to triage issues will become a common workflow.
 
 ## The Remaining Challenges
 
 This isn't all roses. Some open questions:
 
-**Context management**: Even with larger context windows, understanding complex systems requires loading a lot of information. Curated rules and skills help, but there's still work to do here.
+**Context management**: Even with larger context windows, understanding complex systems requires loading a lot of information. Curated rules and skills help, but there's still work to do here.I currently find myself using `/clear` and `/compact` alot at key points, or asking the LLM to summarize state into an .md file I will pull back later (essentially relying on the notion of queryable 'Memory' mentioned above). the idea of [Progressive disclosure](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns) will probably play a big role here. 
 
-**Cross-repository coherence**: Working across multiple repos is possible but spotty. The LLM needs significant context to understand how services interact, and there's no great solution yet for keeping that understanding current.
+**Cross-repository coherence**: Working across multiple repos is possible but spotty. The LLM needs significant context to understand how services interact, and there's no great solution yet for keeping that understanding current. Per-repository CLAUDE.md files that are periodically refreshed do the trick for me for right now, in the future there might be some automation around keeping these rules files up to date automatically (Note to self, another fun project idea: perhaps a [pre-commit](https://pre-commit.com/) hook that triggers claude code CLI to refresh CLAUDE.md based on latest git commits?)
 
-**Verification overhead**: As LLMs take on more complex tasks, verifying their work becomes its own challenge. The time saved in generation can be eaten by review if you're not careful.
+**Verification overhead**: As LLMs take on more complex tasks, verifying their work becomes its own challenge. The time saved in generation can be eaten by review if you're not careful. Part of my workflow is emphasizing Test-driven development at every corner and every turn, and also relying on integration testing by running processes locally and asking Claude Code to interact with them. I typically have a process running in background, tailing to a log file, using some hot-reload functionality (e.g. via [Watchdog](https://github.com/gorakhargosh/watchdog)). This lets the LLM look at the log, make changes, see those get updated automatically, look at the log again etc. This Often finds issues that aren't caught in unit-tests alone.
 
 ## The Bottom Line
 
