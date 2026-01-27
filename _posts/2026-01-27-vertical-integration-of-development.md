@@ -7,9 +7,11 @@ tags: [claude, mcp, ai-assisted-development, developer-tools, productivity]
 excerpt: "We're witnessing a fundamental shift in how software gets built—not just in what tools we use, but in how the entire development process connects together."
 ---
 
-In a recent [post](https://x.com/karpathy/status/2015883857489522876?s=20) on X, [Andrej Karpathy](https://karpathy.ai/) shared his impressions on the current state of coding using LLMs (and in particular Claude Code). In a nutshell, he believes we've crossed a critical threshold where going forward we are likely to have most of the code be written by LLMs.  I think many of us who are writing software using these tools feel this phase transition happening as well, especially going from where things were a year ago.
+In a recent [post](https://x.com/karpathy/status/2015883857489522876?s=20) on X, the inimitable [Andrej Karpathy](https://karpathy.ai/) shared his impressions on the current state of coding using LLMs (and in particular Claude Code). In a nutshell, he believes we've crossed a critical threshold where going forward we are likely to have most of the code be written by LLMs.  I think many of us who are writing software using these tools feel this phase transition happening as well, especially going from where things were a year ago.
 
 I believe _more is true_. We're witnessing a fundamental shift in how software gets built. Not just in *what* tools we use, but in *how* the entire development process connects together. I call this shift the **Vertical Integration of Development**—and I believe if you are a technical leader you should be paying attention to this, or you risk your organization being left in the dust. 
+
+_ As always, any opinions expressed are solely my own and do not express the views or opinions of my employer. I welcome feedback and discussion on this post - find me via social links on this site!_
 
 
 ## What Do I Mean by "Vertical Integration"?
@@ -24,7 +26,7 @@ This isn't incremental improvement. It's a phase change in how software engineer
 
 ## The Enabling Technologies
 
-In hindsight, I believe the culmination of these three recent developments have made this possible. Interestingly, these have all been initiatives started by Anthropic:
+In hindsight, I believe the culmination of these three recent developments has made this possible. Interestingly, these have all been initiatives started by Anthropic:
 
 **Model Context Protocol (MCP)** provides a [standardized](https://modelcontextprotocol.io/) way for LLMs to connect to external tools and data sources. Instead of copy-pasting Grafana logs into a chat window, the LLM can query Grafana directly, in real-time, with full context about what it's looking for. A vast catalog of MCP servers already exists, see for example [here](https://www.pulsemcp.com/servers).
 
@@ -34,7 +36,7 @@ In hindsight, I believe the culmination of these three recent developments have 
 
 ## Case Studies: Vertical Integration in Practice
 
-The above all sounds nice and well in theory, but how does it look like in practice? I'll share below a few use cases, all based on my actual usage from the just the last few weeks. These are real-world scenarios where **this workflow saved us hours and days**, and in some cases helped find extremely subtle issues that might as well have taken weeks to resolve, if at all.
+The above all sounds nice and well in theory, but what does it look like in practice? I'll share below a few use cases, all based on my actual usage from just the last few weeks. These are real-world scenarios where **this workflow saved us hours and days**, and in some cases helped find extremely subtle issues that might as well have taken weeks to resolve, if at all.
 
 ### Debugging Across the Stack
 
@@ -50,6 +52,10 @@ The LLM synthesized all of this information simultaneously, pinpointing the root
 ### Rapid Prototyping at Unprecedented Speed
 
 We've been building proof-of-concept implementations in 2-3 days that would have previously taken weeks. More importantly, when requirements change—say, migrating to a different framework—iteration happens in *hours*, not days. The key enabler is that we can point Claude Code at existing implementations and say "align with this pattern," and it understands the broader architectural context.
+
+Having Claude Code build an End-to-end POC is quite impressive, and I've found that prompting here can make for a big difference in quality. I would typically mention desired architecture (e.g. RESTful API service, Event processing daemon, etc.), frameworks (e.g. fastapi, FastStream, React) and some design patterns, high-level architecture I'd like to follow. This is usually enough for it to go off and build a working system which I can then iterate on. 
+
+An interesting side-effect here is that its worthwhile keeping PoCs as a monolithic repository / codebase for as long as possible - this makes it very easy to update the system as a whole (e.g. API, persistent storage layer and FE can all change in tandem) using something like Claude Code.
 
 ### Tool Building Becomes Viable
 
@@ -89,7 +95,7 @@ Where is this heading? I see several trends converging:
 
 **Organizational knowledge codified**: Teams will invest heavily in CLAUDE.md style rules and custom skills that capture institutional knowledge. The competitive advantage shifts from "who has the best developers" to "who has best captured their development practices in a form LLMs can leverage.". These can be distributed e.g. via a GitHub repository (public or private) serving as a "plugin / skill marketplace" and rules files can be distributed either per repository or in a centralized way (I suspect [Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) might rear their ugly head here for some quick wins :-))
 
-**Cloud-hybrid execution**: The ability to report issues and open candidate PRs directly from Slack (via cloud-based execution) while maintaining the power of local CLI tools creates flexibility in how and where work happens. Claude Code in particular recently introdued [Slack Integration](https://code.claude.com/docs/en/slack) and Google has been experimenting with [Jules](https://jules.google/) for a while now, letting you access it via the web and create PRs on the fly. This holds a lot of promise, although for the time being I find the power of having a full development environment with all the needed permissions on my local dev workstation a clear winner.
+**Cloud-hybrid execution**: The ability to report issues and open candidate PRs directly from Slack (via cloud-based execution) while maintaining the power of local CLI tools creates flexibility in how and where work happens. Claude Code in particular recently introduced [Slack Integration](https://code.claude.com/docs/en/slack) and Google has been experimenting with [Jules](https://jules.google/) for a while now, letting you access it via the web and create PRs on the fly. This holds a lot of promise, although for the time being I find the power of having a full development environment with all the needed permissions on my local dev workstation a clear winner.
 
 **Cross-repository development**: This is still an edge case today, but rapidly improving. As context windows grow and tools better support multi-project workspaces, the artificial boundaries between repositories will matter less. Having BE microservices, GraphQL API gateways, IaaC repositories, all available for the LLM to switch back and forth between to triage issues will become a common workflow.
 
@@ -97,11 +103,11 @@ Where is this heading? I see several trends converging:
 
 This isn't all roses. Some open questions:
 
-**Context management**: Even with larger context windows, understanding complex systems requires loading a lot of information. Curated rules and skills help, but there's still work to do here.I currently find myself using `/clear` and `/compact` alot at key points, or asking the LLM to summarize state into an .md file I will pull back later (essentially relying on the notion of queryable 'Memory' mentioned above). the idea of [Progressive disclosure](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns) will probably play a big role here. 
+**Context management**: Even with larger context windows, understanding complex systems requires loading a lot of information. Curated rules and skills help, but there's still work to do here. I currently find myself using `/clear` and `/compact` a lot at key points, or asking the LLM to summarize state into an .md file I will pull back later (essentially relying on the notion of queryable 'Memory' mentioned above). The idea of [Progressive disclosure](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns) will probably play a big role here. 
 
-**Cross-repository coherence**: Working across multiple repos is possible but spotty. The LLM needs significant context to understand how services interact, and there's no great solution yet for keeping that understanding current. Per-repository CLAUDE.md files that are periodically refreshed do the trick for me for right now, in the future there might be some automation around keeping these rules files up to date automatically (Note to self, another fun project idea: perhaps a [pre-commit](https://pre-commit.com/) hook that triggers claude code CLI to refresh CLAUDE.md based on latest git commits?)
+**Cross-repository coherence**: Working across multiple repos is possible but spotty. The LLM needs significant context to understand how services interact, and there's no great solution yet for keeping that understanding current. Per-repository CLAUDE.md files that are periodically refreshed do the trick for me for now, in the future there might be some automation around keeping these rules files up to date automatically (Note to self, another fun project idea: perhaps a [pre-commit](https://pre-commit.com/) hook that triggers claude code CLI to refresh CLAUDE.md based on latest git commits?)
 
-**Verification overhead**: As LLMs take on more complex tasks, verifying their work becomes its own challenge. The time saved in generation can be eaten by review if you're not careful. Part of my workflow is emphasizing Test-driven development at every corner and every turn, and also relying on integration testing by running processes locally and asking Claude Code to interact with them. I typically have a process running in background, tailing to a log file, using some hot-reload functionality (e.g. via [Watchdog](https://github.com/gorakhargosh/watchdog)). This lets the LLM look at the log, make changes, see those get updated automatically, look at the log again etc. This Often finds issues that aren't caught in unit-tests alone.
+**Verification overhead**: As LLMs take on more complex tasks, verifying their work becomes its own challenge. The time saved in generation can be eaten by review if you're not careful. Part of my workflow is emphasizing Test-driven development at every corner and every turn, and also relying on integration testing by running processes locally and asking Claude Code to interact with them. I typically have a process running in background, tailing to a log file, using some hot-reload functionality (e.g. via [Watchdog](https://github.com/gorakhargosh/watchdog)). This lets the LLM look at the log, make changes, see those get updated automatically, look at the log again etc. This often finds issues that aren't caught in unit-tests alone.
 
 ## The Bottom Line
 
