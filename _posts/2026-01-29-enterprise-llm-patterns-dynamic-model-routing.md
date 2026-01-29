@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "Dynamic Model Routing for Multi-Tenant Compliance (Enterprise LLM Design Patterns #2)"
+title: "Who Gets Which Model? LLM Routing for Enterprise Compliance (Enterprise LLM Design Patterns #2)"
 date: 2026-01-29
 categories: [architecture, llm, enterprise]
 tags: [llm, multi-tenant, compliance, python, langchain, routing]
