@@ -265,9 +265,9 @@ After analyzing a lot of different use cases, I don't believe there is a one siz
 
 - **Event-driven reindexing**: For use cases where maintaining multiple indexes per model is not practical, an alternative approach is to publish an event whenever client-model relationship configuration changes (or when we add a new model to the system which we want supported going forward). An event handling component can then pick up this event, enumerate all affected resources (this will be very implementation-dependent), check if they are still considered "alive", and if so, trigger re-indexing of their associated embeddings.
 
-## Operational Considerations
+## Operational Aspects
 
-### Hot Reloading Provider Priorities
+### Hot Reloading a 'Global Override' to Provider Priorities
 
 During an incident, you need to quickly shift traffic away from a failing provider. 
 A simple pattern that can accomodate for this is a global provider priority list 'override' flag that enables this without code changes.
@@ -292,7 +292,7 @@ Track resolution outcomes to detect configuration problems early:
 
 Constraint lookups happen on every request, so they need to be fast. Cache client configurations aggressively with TTL-based expiration (e.g. 5 minutes). Consider cache invalidation via the CRUD API that manages constraints—when a tech support engineer updates a client's allowed models, the cache should be cleared for that client.
 
-## Considerations and Tradeoffs
+## Additional Considerations and Tradeoffs
 
 ### When This Pattern Fits
 
