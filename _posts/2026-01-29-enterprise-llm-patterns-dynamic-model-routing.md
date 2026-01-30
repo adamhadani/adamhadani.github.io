@@ -17,7 +17,7 @@ Consider a B2B platform where different client companies have different regulato
 
 - **Client A** (financial services, EU-based) requires all AI processing to use [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service)-hosted models within EU data centers
 - **Client B** (healthcare) mandates specific model versions that have been audited for their compliance framework
-- **Client C** (government contractor) requires [FedRAMP](https://www.fedramp.gov/)-authorized services at [Impact Level 5 (IL5)](https://csrc.nist.gov/projects/risk-management/fisma-background), restricting them to providers like [AWS GovCloud](https://aws.amazon.com/govcloud-us/)—excluding commercial cloud regions entirely
+- **Client C** (critical infrastructure contractor) has strict Data Processing Agreement (DPA) governing all digital interactions concerning their data, mandating specific siloed environments from which models can run.
 
 Suddenly, your "just call GPT-4" architecture needs to become a dynamic routing system that respects per-client constraints at runtime.
 
@@ -110,9 +110,9 @@ Other notable players include [Cloudflare AI Gateway](https://developers.cloudfl
 
 - **Prompt-model affinity coordination**—selecting the right *prompt variant* based on which model the client's constraints allow—is application-layer logic that no gateway handles. This is the integration point with prompt management platforms like LangFuse or LangSmith.
 - **Embedding model routing with compliance-aware multi-model indexing** (indexing with multiple models at write time, querying with the compliant one at read time) is not addressed by any vendor.
-- **FedRAMP / IL5 compliance** eliminates all third-party gateways—only the hyperscalers (AWS Bedrock, Azure AI Foundry) currently hold these authorizations.
+- **Data processing agreements** (DPA) ca sometimes eliminate all third-party gateways.
 
-The practical takeaway: if your needs are primarily multi-provider failover with basic per-tenant access control, a managed gateway like Portkey or LiteLLM can save significant engineering effort. If you need deep prompt-model affinity coordination, embedding compliance for RAG, or must operate within strict regulatory boundaries like FedRAMP, you'll likely need the custom architecture described below—potentially layered on top of a gateway for the lower-level routing primitives.
+The practical takeaway: if your needs are primarily multi-provider failover with basic per-tenant access control, a managed gateway like Portkey or LiteLLM can save significant engineering effort. If you need deep prompt-model affinity coordination, embedding compliance for RAG, or must operate within strict regulatory boundaries mandated by DPAs and such, you'll likely need the custom architecture described below—potentially layered on top of a gateway for the lower-level routing primitives.
 
 ## Proposed Architecture
 
@@ -298,7 +298,7 @@ Constraint lookups happen on every request, so they need to be fast. Cache clien
 
 Dynamic model routing makes sense when:
 
-- You have enterprise clients with regulatory or compliance requirements (e.g. [FedRAMP](https://www.fedramp.gov/), [SOC 2](https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2), [GDPR](https://gdpr-info.eu/))
+- You have enterprise clients with regulatory or compliance requirements (e.g. DPAs, [SOC 2](https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2), [GDPR](https://gdpr-info.eu/))
 - Different clients need different providers (data residency, audit requirements)
 - You want operational flexibility to shift traffic during incidents
 - Your prompt library has model-specific variants managed by a dedicated prompt engineering team
