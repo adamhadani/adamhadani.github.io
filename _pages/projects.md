@@ -40,8 +40,6 @@ I'm a core member of [PromptRomp](https://github.com/promptromp/), an open-sourc
 
 - **[pdfalive](https://github.com/promptromp/pdfalive)** - A Python library and CLI toolkit that enhances PDF files using LLM capabilities. Features include automatic table of contents generation with clickable bookmarks, intelligent OCR detection for scanned documents, and smart batch file renaming using natural language instructions. Supports multiple LLM providers via LangChain (OpenAI, Anthropic, Ollama).
 
-- **[diastra](https://github.com/promptromp/diastra)** - DIaSTRA (Distributed Architecture Specification Transpiler) is a specification and framework ecosystem for writing large-scale, distributed, stateful cloud-first software. It leverages LLMs to transpile high-level system specifications (using concepts like Entities, State Machines, Events, Workflows and Sagas) into microservices, code, and durable storage definitions.
-
 - **[python-remote-debug-skill](https://github.com/promptromp/python-remote-debug-skill)** - A Claude Code skill for debugging running Python processes using Python 3.14+ remote debugging via `sys.remote_exec()`. Inject debugging scripts into live processes to get stack traces without stopping them, with special handling for gevent-based workers (like Celery with `-P gevent`).
 
 - **[aws-bootstrap-g4dn](https://github.com/promptromp/aws-bootstrap-g4dn)** - One command to go from zero to a fully configured GPU dev box on AWS. Handles spot instance launching, automatic SSH config, CUDA-aware PyTorch installation, Jupyter Lab setup, and GPU benchmarking. Supports Jupyter server-client, VSCode Remote SSH, and NVIDIA Nsight remote debugging workflows.
